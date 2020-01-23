@@ -1,6 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
 
+//________COULEURS_DU_TEXTE_________________________________________________
+
+//Variables globales des couleurs
+WORD saved_attributes;
+HANDLE hConsole;
+CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+
+//Fonctions de setup des couleurs
+void setupColor(){
+	hConsole= GetStdHandle(STD_OUTPUT_HANDLE);
+	GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+	saved_attributes = consoleInfo.wAttributes;
+}
+
+//Fonctions de changement de couleur de texte
+void colorAqua(){
+	GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+	SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE+FOREGROUND_GREEN);
+}
+void colorVert(){
+	GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+}
+void colorJaune(){
+	GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN+FOREGROUND_RED);
+}
+void colorRouge(){
+	GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+	SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+}
+void colorBlanc(){
+	GetConsoleScreenBufferInfo(hConsole, &consoleInfo);
+	SetConsoleTextAttribute(hConsole, saved_attributes);
+}
+//__________________________________________________________________________
 
 //Declaration des points de vies
 int PDVJoueur=100;
@@ -31,6 +68,9 @@ int empoisonement(int viesCible) {
 }
 
 int main(){
+	setupColor();
+	colorAqua();
+
 	printf("\n Vous rencontrez un ennemis!\n Il est vert, hideux, et ressemble a Valentin\n Le combat commence!\n\n");
 	
 	while ((PDVJoueur>1) && (PDVMonstre>1)){
@@ -109,5 +149,8 @@ int main(){
 	}else{
 		printf("\nLe monstre Se nourrit de votre chaire, celle-ci a ne plus jamais etre vue par votre maris ou vos enfants..");
 	}
+
+	//--------NO-TOUCH-------JUST-LOOK---------
+	colorBlanc();
 	return 0;
 }
