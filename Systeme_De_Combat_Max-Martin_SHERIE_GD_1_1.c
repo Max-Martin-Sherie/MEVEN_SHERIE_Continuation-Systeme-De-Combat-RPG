@@ -63,6 +63,11 @@ int jeuFini;
 int nombreEnnemis;
 int numAttaque;
 
+struct Entite ennemi[3];
+struct Entite tank = {200,0,25,0,1,0};
+struct Entite mage= {85,10,15,0,1,0};
+struct Entite soin= {100,10,10,0,1,0};
+
 //Fonction d'une instance d'une attaque simple
 //Param__ATK: ATK du perso attaquant____viesCible: PDV de la cible
 void attaqueSimple(int ATK,int viesCible) {
@@ -71,10 +76,7 @@ void attaqueSimple(int ATK,int viesCible) {
 }
 
 
-struct Entite ennemi[3];
-struct Entite tank = {200,0,25,0,1,0};
-struct Entite mage= {85,10,15,0,1,0};
-struct Entite soin= {100,10,10,0,1,0};
+
 
 int main(){
 	srand(time(NULL));
