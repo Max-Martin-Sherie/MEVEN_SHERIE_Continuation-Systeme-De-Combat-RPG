@@ -1,6 +1,9 @@
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
+
+
 
 //________COULEURS_DU_TEXTE_________________________________________________
 
@@ -39,117 +42,193 @@ void colorBlanc(){
 }
 //__________________________________________________________________________
 
-//Declaration des points de vies
-int PDVJoueur=100;
-int PDVMonstre=200;
-int PMJoueur=4;
-int PMMonstre=14;
-int empoisonementJoueur=0;
-int empoisonementMonstre=0;
-int defense=0;
+
+//Structure des entites du jeu
+struct Entite{
+	//Points de vie || Points de magie || Attaque de base || Experience || Niveau
+	int PDV;
+	int PDM;
+	int ATK;
+	int XP;
+	int LVL;
+
+	// 0 pas ennemi, 1 monstre type1, 2 monstre type 2;
+	int ennemis;
+
+	char nom[50];
+};
+
+//Declaration des variables globales
+int jeuFini;
+int nombreEnnemis;
 int numAttaque;
 
-//Fonction d'une attaque simple
-int attaqueSimple(int viesCible) {
-	if(defense==1){
-		viesCible=viesCible-5;
-	}else{
-		viesCible=viesCible-20;
-	}
-	
-	return viesCible;
+//Fonction d'une instance d'une attaque simple
+//Param__ATK: ATK du perso attaquant____viesCible: PDV de la cible
+void attaqueSimple(int ATK,int viesCible) {
+
+	viesCible=viesCible-ATK;
 }
 
-//Fonction d'une instance d'un empoisonnement
-int empoisonement(int viesCible) {
-	
-	viesCible=viesCible-5;
-	return viesCible;
-}
+
+struct Entite ennemi[3];
+struct Entite tank = {200,0,25,0,1,0};
+struct Entite mage= {85,10,15,0,1,0};
+struct Entite soin= {100,10,10,0,1,0};
 
 int main(){
+	srand(time(NULL));
+	//Affectation_des_varibles_globales________________________________________
+
+	for(int i=0; i<=2; i++){
+		ennemi[i].PDV=0;
+	}
+
+	jeuFini=0;
+	nombreEnnemis=0;
+
+	//_________________________________________________________________________
+
+
+	//Setup____________________________________________________________________
 	setupColor();
-	colorAqua();
+	//_________________________________________________________________________
 
-	printf("\n Vous rencontrez un ennemis!\n Il est vert, hideux, et ressemble a Valentin\n Le combat commence!\n\n");
-	
-	while ((PDVJoueur>1) && (PDVMonstre>1)){
-		printf("c'est a vous de jouer\n");
-		PMJoueur++;
-		printf("Vous avez %d PM\n",PMJoueur);
-		printf("(1)attaque (2)se defense (3)poison (4)antidote\n");
+	printf("Vous etes dans un monde ou les monstres regnent sur la Terre. Votre equipe a ete elue pour devoir eradiquer tout ces monstres.\n");
+	printf("Pensez-vous y arriver?...\n");
+	printf("Choisissez les noms des personnages de votre equipe.\n");
+	printf("\nChoisissez un nom pour votre Gardien: ");
+	scanf("%s",&tank.nom);
+
+	printf("\nChoisissez un nom pour votre Sorcier:");
+	scanf("%s",&mage.nom);
+
+	printf("\nChoisissez un nom pour votre Pretre:");
+	scanf("%s",&soin.nom);
+
+
+	//Boucle while du jeu de base
+	while(jeuFini!=1)
+	{
+		//initiation combat
 		
-		scanf("%d", &numAttaque);
-		
-		while(numAttaque != 1 && numAttaque != 2 && (numAttaque==3 && PMJoueur<5) && (numAttaque!=4&& PMJoueur<3)){
-			if((PMJoueur<5 && numAttaque==3) || (numAttaque!=4&& PMJoueur<3)){
-				printf("vous n'avez pas assez de PM pour lancer ce sort\n");
-			}else{
-				printf("Il n'y a pas d'attaque numero %d ! \n",numAttaque);
+		nombreEnnemis=rand()%3+1;
+		if(tank.LVL<5){
+			if(nombreEnnemis==4){
+				nombreEnnemis=1;
 			}
-			scanf("%d", &numAttaque);
+		}else if(tank.LVL<10){
+			if(nombreEnnemis==4){
+				nombreEnnemis=2;
+			}
+		}else {
+			if(nombreEnnemis==4){
+				nombreEnnemis=3;
+			}
 		}
-		if(numAttaque==1){
-			PDVMonstre=attaqueSimple(PDVMonstre);
-			printf("Vous frappez l'ennemi d'un glorieux coup de sabre !\n");
-			defense=0;
-		}else if(numAttaque==2){
-			printf("Vous vous retraitez derriere votre bouclier en mythril!\n");
-			defense=1;
-		}else if(numAttaque==3){
-			printf("Vous jetez un sort de poisson pourris sur l'ennemi!\n");
-			PMJoueur=PMJoueur-5;
-			empoisonementMonstre=3;
-			defense=0;
-		}else if(numAttaque=4){
-			PMJoueur=PMJoueur-3;
-			empoisonementJoueur=0;
-			defense=0;
-		}
-		if(empoisonementMonstre>0){
-			empoisonementMonstre--;
-			printf("Le monstre empoissone perd 5 points de vie\n");
-			PDVMonstre=empoisonement(PDVMonstre);
-		}
-		
-		printf("Il reste %d points de vie au monstre\n \n",PDVMonstre);
-		
-		PMMonstre++;
-		if(PMMonstre>14){
-			numAttaque = rand()%3;
-		}else{
-			numAttaque = rand()%2;
-		}
-		
-		if(numAttaque==0){
-		PDVJoueur=attaqueSimple(PDVJoueur);
-		printf("Le Monstre attaque d'un coup de pate hideuse!\n");
-		defense=0;
-		}else if(numAttaque==1){
-			printf("Le monstre de protege\n");
-			defense=1;
-		}else if(numAttaque==2){
-			printf("Le monstre vous crache dessus! Vous etes empoisonne.\n");
-			PMMonstre=PMMonstre-5;
-			empoisonementJoueur=5;
-			defense=0;
-		}
-		
-		if(empoisonementJoueur>0){
-			empoisonementJoueur--;
-			printf("Empoisonne, Vous perdez 5 points de vie\n");
-			PDVJoueur=empoisonement(PDVJoueur);
-			
-		}
-		
-		printf("Il vous reste %d Points de vie\n \n",PDVJoueur);
-	}
-	if(PDVJoueur>0){
-		printf("\nLe monstre est mort et vous rentrer chez vous satisfait.");
-	}else{
-		printf("\nLe monstre Se nourrit de votre chaire, celle-ci a ne plus jamais etre vue par votre maris ou vos enfants..");
-	}
 
+		for(int i=0;i<nombreEnnemis;i++){
+			
+			ennemi[i].ennemis=(rand()%2)+1;
+			ennemi[i].LVL=(tank.LVL+rand()%3)-1;
+
+			if(ennemi[i].LVL<=0){ennemi[i].LVL=1;}
+
+			//si l'ennemi est de type1
+			if(ennemi[i].ennemis==1){
+				ennemi[i].PDV=400+100*(ennemi[i].LVL-1);
+				ennemi[i].ATK=50+12*(ennemi[i].LVL-1);
+			}
+
+			//si l'ennemi est de type2
+			if(ennemi[i].ennemis==2){
+				ennemi[i].PDV=250+25*(ennemi[i].LVL-1);
+				ennemi[i].ATK=20+4*(ennemi[i].LVL-1);
+			}
+		}
+
+		printf("Il y a ");
+		colorJaune();
+		printf("%d",nombreEnnemis);
+		colorBlanc();
+		printf(" ennemis face a vous!\n");
+		for (int i=0;i<nombreEnnemis;i++){
+			printf("Un ");
+			if(ennemi[i].ennemis==1){
+				colorRouge();
+				printf("Duraqwir");
+				colorBlanc();
+			}
+
+			if(ennemi[i].ennemis==2){
+				colorRouge();
+				printf("Chene-a-pan");
+				colorBlanc();
+			}
+
+			printf(" de niveau ");
+			colorAqua();
+			printf("%d \n",ennemi[i].LVL);
+			colorBlanc();
+		}
+
+		//boucle while de combat
+		while(tank.PDV+mage.PDV+soin.PDV>0 && ennemi[0].PDV+ennemi[1].PDV+ennemi[2].PDV>0){
+			
+			colorVert();
+			printf("\n\n\nC'est a vous de jouer!\n");
+			colorBlanc();
+			printf("%s commence.\n",soin.nom);
+			colorJaune();
+
+			printf("PDV : %d ",soin.PDV);
+			
+			printf("|| PDM : %d ",soin.PDM);
+			printf("|| ATK : %d\n",soin.ATK);
+			
+			colorBlanc();
+			
+			printf("\n");
+			printf("\nQui voulez vous cibler?\n\n");
+
+			for(int i=0;i<nombreEnnemis;i++){
+				colorBlanc();
+				printf("(%d) ",i+1);
+				colorRouge();
+				if(ennemi[i].ennemis==1){
+					printf("Duraqwir");
+				}else {
+					printf("Chene-a-pan");
+				}
+				printf("(%d) ",ennemi[i].LVL);
+				colorBlanc();
+				printf("  %d/",ennemi[i].PDV);
+
+				int x;
+				if(ennemi[i].ennemis==1){
+					x = 400+100*(ennemi[i].LVL-1);
+					printf("%d",x);
+				}else {
+					x = 250+25*(ennemi[i].LVL-1);
+					printf("%d",x);
+				}
+				printf("\n");
+			}
+
+			printf("(%d) Votre equipe",nombreEnnemis+1);
+			
+
+			colorBlanc();
+
+			scanf("%d",&numAttaque);
+
+			ennemi[0].PDV = ennemi[0].PDV-50;
+
+			printf("%d",ennemi[0].PDV);
+
+		}
+		jeuFini=1;
+	}
 	//--------NO-TOUCH-------JUST-LOOK---------
 	colorBlanc();
 	return 0;
